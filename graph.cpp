@@ -6,7 +6,7 @@
 
 typedef struct {
 	int code;		//node[0]
-	char label[5];	//nic #0
+	char label[5];		//nic #0
 	int posX;		//startPos: (100.000,100.000,1.000)
 	int posY;		//startPos: (100.000,100.000,1.000)
 } node;
@@ -50,14 +50,12 @@ int main(int argc, char *argv[]) {
 	while( !feof(logFile) ) { // enquanto arquivo de log nao terminar
 		char word[4000];
 		fscanf(logFile, " %[^\n]", word);
-//printf("%s ", word);
 
 		//
 		// Procura por substring relacionada a um novo grafo
 		//	"]::TraCIMobility: checkIfOutside, outside=0 borderStep: (0,0,0)"
 		char *mobility = strstr(word,"]::TraCIMobility: checkIfOutside, outside=0 borderStep: (0,0,0)");
 		if( mobility ) {
-//printf("%ld; %s\n", until-word+1, word);
 
 			// calcula parte da string que define o numero do node
 			int gap = (mobility-word-7);
@@ -69,7 +67,6 @@ int main(int argc, char *argv[]) {
 
 			// faz um cast do numero do node para int
 			no.code = atoi(strNum);
-//printf("PRIMEIRO NODE: %d\n", no.code);
 
 			//
 			// Lendo proxima linha que contem o startPos do node e o startTime
@@ -89,7 +86,6 @@ int main(int argc, char *argv[]) {
 
 			// faz um cast do startTime para float
 			startTime = atof(strNum);
-//printf("TIME: %.2f\n", startTime);
 
 			//
 			// Calcula a parte da string que define a posicao x,y do node
@@ -104,14 +100,13 @@ int main(int argc, char *argv[]) {
 			}
 			strNum[i] = '\0';
 			no.posX = atoi(strNum);
-//printf("%s\nX: %d\n", word, no.posX);
 
 			// pula decimais (desnecessarios)
 			while(word[wordPos+i] != ',') {
 				i++;
 			}
 			wordPos = wordPos+i+1;	// atualiza valor da posicao na word
-			i = 0;					// atualiza o valor de i para gravar em strNum
+			i = 0;			// atualiza o valor de i para gravar em strNum
 
 			// calcula y
 			while(word[wordPos+i] != '.') {
@@ -120,8 +115,6 @@ int main(int argc, char *argv[]) {
 			}
 			strNum[i] = '\0';
 			no.posY = atoi(strNum);
-//printf("Y: %d\n", no.posY);
-//printf("NO pos code: %d\n", no.code);
 			
 			// atualiza o node no vetor de vertices
 			updateNode(vertices, no);
@@ -139,8 +132,7 @@ int main(int argc, char *argv[]) {
 					no.label[i] = word[39+i];
 				}
 				no.label[i] = '\0';
-//printf("%s\n%s\n", word, no.label);
-//printf("NO label code: %d\n", no.code);
+
 				// atualiza o node no vetor de vertices
 				updateLabelNode(vertices, no);
 			} else {
@@ -158,7 +150,6 @@ int main(int argc, char *argv[]) {
 						label[i] = word[41+i];
 					}
 					label[gap] = '\0';
-//printf("%s\nnic#%s\n", word, label);
 
 					// exclui o node do vetor de vertices e todos seus edges pelo label
 					removeNodeByLabel(vertices, arestas, label);
@@ -186,7 +177,6 @@ int main(int argc, char *argv[]) {
 							ed->vert2[i] = word[(strstr(word, " and #") - word + 6) + i];
 						}
 						ed->vert2[gap] = '\0';
-//printf("%s\nConnecting nic#%s and nic#%s\n", word, ed->vert1, ed->vert2);
 
 						// registra novo edge no vetor de arestas
 						arestas->add(ed);
@@ -214,7 +204,6 @@ int main(int argc, char *argv[]) {
 								ed->vert2[i] = word[(strstr(word, " and #") - word + 6) + i];
 							}
 							ed->vert2[gap] = '\0';
-//printf("%s\nDisconnecting nic#%s and nic#%s\n", word, ed->vert1, ed->vert2);
 
 							// remove o edge do vetor de arestas
 							removeEdgeByLabel(arestas, ed);
@@ -267,12 +256,12 @@ int updateNode(Vector<node *> *vertices, node a) {
 		no->posX = a.posX;
 		no->posY = a.posY;
 	vertices->add(no);
-//printf("ADD node: %d, LABEL: %s, POS: (%d,%d)\n", no->code, no->label, no->posX, no->posY);
+
 	return 0;
 }
 
 ///
-///
+/// Atualiza o node a partir do label
 ///
 int updateLabelNode(Vector<node *> *vertices, node a) {
 	//
@@ -283,7 +272,7 @@ int updateLabelNode(Vector<node *> *vertices, node a) {
 		node *b = vertices->get(i);
 		if( a.code == b->code) {
 			strcpy(b->label, a.label);
-//printf("ATUALIZOU Label: %s\n", b->label);
+
 			return 0;
 		}
 	}
@@ -301,7 +290,6 @@ int removeNodeByLabel(Vector<node *> *vertices, Vector<edge *> *arestas, char la
 
 	if( index != -1 ) {
 		vertices->remove(index);
-		//removeAllEdgeByLabel(arestas, label);
 
 		return 0;
 	} else {
@@ -319,7 +307,7 @@ void removeEdgeByLabel(Vector<edge *> *arestas, edge *ed) {
 
 	for(int i=0; i < arestas->getSize(); i++) {
 		edge *aresta = arestas->get(i);
-		if( !strcmp(aresta->vert1, ed->vert1) && !strcmp(aresta->vert2, ed->vert2) ) {//VERIFICAR O IF
+		if( !strcmp(aresta->vert1, ed->vert1) && !strcmp(aresta->vert2, ed->vert2) ) {
 			arestas->remove(i);
 			count++;
 		}
@@ -330,12 +318,12 @@ void removeEdgeByLabel(Vector<edge *> *arestas, edge *ed) {
 }
 
 ///
-/// Remove todas as arestas de um vertice a partir de seu label 			DESUSO
+/// Remove todas as arestas de um vertice a partir de seu label
 ///
 void removeAllEdgeByLabel(Vector<edge *> *arestas, char label[]) {
 	for(int i=0; i < arestas->getSize(); i++) {
 		edge *aresta = arestas->get(i);
-		if( !strcmp(aresta->vert1, label) || !strcmp(aresta->vert2, label) ) //VERIFICAR O IF
+		if( !strcmp(aresta->vert1, label) || !strcmp(aresta->vert2, label) )
 			arestas->remove(i);
 	}
 }
@@ -349,9 +337,6 @@ int createGraphFile(Vector<node *> *vertices, Vector<edge *> *arestas, float sta
 	if(startTime == 0.0)
 		return 0;
 
-//printf("\n**************************************************************************\n");
-//printf("\t\t\tARQUIVO %f", startTime);
-//printf("\n**************************************************************************\n");
 	char fileName[30];
 	sprintf(fileName, "graph_%.2f.gt", startTime);
 
